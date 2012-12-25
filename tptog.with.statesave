@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# tptog - Toggle the touchpad on a Thinkpad
+# tested on X220, which is known to have a trackpad also known as "clickpad"
+
+# this script makes use of the "notify-send" command (libnotify notification
+# as used by XFCE or Gnome - i did not test KDE)
+
+touchpad_id=$(xinput list|grep "Synaptics TouchPad"|sed 's/^.*id=\([[:digit:]]\+\).*$/\1/')
+touchpad_enabled=$(xinput list-props $touchpad_id|grep "Device Enabled"|awk '{print $4}')
+
+function get_xinput_state () {
+    st=$(xinput list-props $touchpad_id|grep "Device Enabled"|awk '{print $4}')
+    return "$st"
+}
+
+function get_saved_state () {
+    st="$(cat ~/.tptog)"
+    case $st in
+        1)
+        return "1"
+        ;;
+        0)
+        return "0"
+        ;;
+        *)
+        return "1"
+        ;;
+    esac
+}
+
+
+case "$1" in
+    --restore)
+    saved=0
+    get_saved_state && saved=1
+    xinput=0
+    get_xinput_state && xinput=1
+    if [ "$saved" != "$xinput" ]; then
+        echo "something is fuckin wrong here" > ~/wrong
+    fi
+;;
+esac
+
+if [[ "$touchpad_enabled" == 0 ]]; then   
+    notify-send -t 3000 -i /usr/share/icons/gnome/48x48/devices/input-touchpad.png "Touchpad enabled"
+    echo "1" > ~/.tptog
+    other=1
+else
+    notify-send -t 3000 -i /usr/share/icons/gnome/48x48/devices/input-touchpad.png "Touchpad disabled"
+    echo "0" > ~/.tptog
+    other=0
+fi
+xinput set-prop $touchpad_id "Device Enabled" $other
+

@@ -1,0 +1,16 @@
+#!/bin/bash
+
+state="$(synclient | grep -E '^\ *TouchpadOff' | cut -d"=" -f 2 | sed 's/^\ //')"
+
+if [[ "$state" == "1" ]]; then
+    synclient TouchpadOff=0
+    notify-send -t 3000 -i ~/bin/tptog_icon_on.png "Touchpad ON"
+    ~/bin/flashlight 1
+else
+    synclient TouchpadOff=1
+    notify-send -t 3000 -i ~/bin/tptog_icon_off.png "Touchpad OFF"
+    ~/bin/flashlight 1
+fi
+
+
+

@@ -1,0 +1,32 @@
+#!/bin/bash
+
+filepath=$(readlink -f $0)
+dirpath=${filepath%/*}
+
+
+# tptog - Toggle the touchpad on a Thinkpad
+# tested on X220, which is known to have a trackpad also known as "clickpad"
+
+# written by netzverweigerer (http://github.com/netzverweigerer)
+
+# this script makes use of the "notify-send" command (libnotify notification
+# as used by XFCE, KDE or Gnome
+
+touchpad_id=$(xinput list|grep "Synaptics TouchPad"|sed 's/^.*id=\([[:digit:]]\+\).*$/\1/')
+touchpad_enabled=$(xinput list-props $touchpad_id|grep "Device Enabled"|awk '{print $4}')
+
+if [[ "$touchpad_enabled" == 0 ]]; then
+    # enable touchpad
+    notify-send -t 3000 -i $dirpath/tptog_icon_on.png "Touchpad ON"
+    ~/bin/flashlight 1
+    echo "1" > ~/.tptog
+    other=1
+else
+    # disable touchpad
+    notify-send -t 3000 -i $dirpath/tptog_icon_off.png "Touchpad OFF"
+    ~/bin/flashlight 1
+    echo "0" > ~/.tptog
+    other=0
+fi
+xinput set-prop $touchpad_id "Device Enabled" $other
+
