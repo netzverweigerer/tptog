@@ -3,6 +3,12 @@
 filepath=$(readlink -f $0)
 dirpath=${filepath%/*}
 
+bailout () {
+  echo "Error - $@ - exiting..."
+  exit 1
+}
+
+hash xinput >/dev/null 2>&1 || bailout "xinput not found"
 
 # tptog - Toggle the touchpad on a Thinkpad
 # tested on X220, which is known to have a trackpad also known as "clickpad"
@@ -18,13 +24,11 @@ touchpad_enabled=$(xinput list-props $touchpad_id|grep "Device Enabled"|awk '{pr
 if [[ "$touchpad_enabled" == 0 ]]; then
     # enable touchpad
     notify-send -t 3000 -i $dirpath/tptog_icon_on.png "Touchpad ON"
-    ~/bin/flashlight 1
     echo "1" > ~/.tptog
     other=1
 else
     # disable touchpad
     notify-send -t 3000 -i $dirpath/tptog_icon_off.png "Touchpad OFF"
-    ~/bin/flashlight 1
     echo "0" > ~/.tptog
     other=0
 fi
