@@ -24,12 +24,10 @@ touchpad_enabled=$(xinput list-props $touchpad_id|grep "Device Enabled"|awk '{pr
 if [[ "$touchpad_enabled" == 0 ]]; then
     # enable touchpad
     notify-send -t 3000 -i $dirpath/tptog_icon_on.png "Touchpad ON"
-    echo "1" > ~/.tptog
     other=1
 else
     # disable touchpad
     notify-send -t 3000 -i $dirpath/tptog_icon_off.png "Touchpad OFF"
-    echo "0" > ~/.tptog
     other=0
 fi
 xinput set-prop $touchpad_id "Device Enabled" $other
